@@ -19,6 +19,8 @@ namespace MyMap
 		public GMapOverlay MainOverlay { get; private set; } = new GMapOverlay();
 		public bool IsLeftButtonDown { get; private set; } = false;
 
+		public readonly SqlConnection SqlConnection = new SqlConnection("Data Source=localhost\\SQLEXPRESS;Initial Catalog=Map;Integrated Security=True");
+
 		public MainForm()
 		{
 			InitializeComponent();
@@ -114,10 +116,9 @@ namespace MyMap
 
 		private void LoadPointsFromDb()
 		{
-			var sqlConnection = new SqlConnection("Data Source=localhost\\SQLEXPRESS;Initial Catalog=Map;Integrated Security=True");
-			sqlConnection.Open();
+			SqlConnection.Open();
 
-			var sqlCommand = new SqlCommand("SELECT * FROM Points", sqlConnection);
+			var sqlCommand = new SqlCommand("SELECT * FROM Points", SqlConnection);
 			var sqlDataReader = sqlCommand.ExecuteReader();
 			var points = new List<MapPoint>();
 
@@ -164,11 +165,7 @@ namespace MyMap
 		{
 			var markers = MainOverlay.Markers;
 
-			//TODO: Вынести соединение!
-			var sqlConnection = new SqlConnection("Data Source=localhost\\SQLEXPRESS;Initial Catalog=Map;Integrated Security=True");
-			sqlConnection.Open();
-
-			var sqlCommand = new SqlCommand("DELETE FROM Points", sqlConnection);
+			var sqlCommand = new SqlCommand("DELETE FROM Points", SqlConnection);
 			sqlCommand.ExecuteNonQuery();
 
 			var stringBuilder = new StringBuilder("INSERT INTO [Points] (X, Y) VALUES ");
@@ -186,7 +183,7 @@ namespace MyMap
 				sqlCommand.CommandText = stringBuilder.ToString();
 				sqlCommand.ExecuteNonQuery();
 			}			
-			sqlConnection.Close();
+			SqlConnection.Close();
 		}
 	}
 }
